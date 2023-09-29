@@ -39,12 +39,17 @@
       const currentDate = new Date().toLocaleDateString('default', {day: '2-digit', month: '2-digit', year: '2-digit'}) +
 " "+ new Date().toLocaleTimeString().slice(0,-3);
 
+
+
 const getCurrentDate = (date) => {
   return date.getDate().toString().padStart(2, '0') + '.' +
     (date.getMonth() + 1).toString().padStart(2, '0') + '.' +
     date.getFullYear().toString().slice(-2) + " " +
     date.toLocaleTimeString().slice(0, -3);
 }
+
+
+// получаем данные
 
 let comments = [];
 
@@ -74,6 +79,8 @@ function fetchData() {
 
 fetchData();
 
+// Активируем лайки 
+
 function getLikes() {
   const likesButton = document.querySelectorAll(".like-button");
   for (const like of likesButton) {
@@ -97,6 +104,8 @@ function getLikes() {
   }
 }
 
+// Ответ на комментарии
+
 function replyToComment() {
   let commentElements = document.querySelectorAll(".comment");
   for (const commentElement of commentElements) {
@@ -106,6 +115,8 @@ function replyToComment() {
     });
   }
 }
+
+// Рендерим комменты
 
 const renderComments = () => {
   const commentsHtml = comments
@@ -152,6 +163,8 @@ const renderComments = () => {
 
 renderComments();
 
+// деактивируем кнопку "написать" при пустых полях
+
 nameInputElement.addEventListener("input", () => {
   buttonElement.disabled = true;
   if (nameInputElement.value.length > 0 && commentInputElement.value.length > 0) {
@@ -165,6 +178,8 @@ commentInputElement.addEventListener("input", () => {
     buttonElement.disabled = false;
   }
 });
+
+// отправляем новые данные
 
 buttonElement.addEventListener("click", () => {
   const postData = fetch("https://wedev-api.sky.pro/api/v1/diana-semenova/comments", {
@@ -196,11 +211,15 @@ buttonElement.addEventListener("click", () => {
   });
 });
 
+// активируем нажатие "enter"
+
 document.addEventListener("keyup", function (enter) {
   if (enter.keyCode == 13) {
     buttonElement.click();
   }
 });
+
+// активируем удаление комментария нажатием кнопки "удалить"
 
 deleteButtonElement.addEventListener("click", () => {
   comments.pop();
