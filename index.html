@@ -36,11 +36,10 @@
       const listElement = document.getElementById("list");
       const nameInputElement = document.getElementById("name-input");
       const commentInputElement = document.getElementById("comment-input");
+
+
       const currentDate = new Date().toLocaleDateString('default', {day: '2-digit', month: '2-digit', year: '2-digit'}) +
 " "+ new Date().toLocaleTimeString().slice(0,-3);
-
-
-
 const getCurrentDate = (date) => {
   return date.getDate().toString().padStart(2, '0') + '.' +
     (date.getMonth() + 1).toString().padStart(2, '0') + '.' +
@@ -182,6 +181,8 @@ commentInputElement.addEventListener("input", () => {
 // отправляем новые данные
 
 buttonElement.addEventListener("click", () => {
+  buttonElement.disabled = true;
+  buttonElement.textContent = 'Подождите, данные загружаются...'
   const postData = fetch("https://wedev-api.sky.pro/api/v1/diana-semenova/comments", {
     method: "POST",
     body: JSON.stringify({
@@ -205,10 +206,13 @@ buttonElement.addEventListener("click", () => {
   });
 
   postData.then((response) => {
-    response.json().then((responseData) => {
+    return response.json();})
+    .then((responseData) => {
+      buttonElement.disabled = false;
+  buttonElement.textContent = 'Написать'
       fetchData();
-    });
-  });
+      renderComments();
+});
 });
 
 // активируем нажатие "enter"
