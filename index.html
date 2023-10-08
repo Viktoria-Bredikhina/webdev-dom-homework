@@ -7,9 +7,11 @@
   </head>
   <body>
     <div class="container">
+      <div class="data-loading">Пожалуйста подождите, комментарии загружаются...</div>
       <ul class="comments" id="list">
         <!-- Список рендерится из JS -->
       </ul>
+      <div class="comment-loading">Комментарий загружается...</div>
       <div class="add-form">
         <input
           id="name-input"
@@ -28,9 +30,14 @@
           <button id="delete-button" class="add-form-button delete-form-button"> Удалить последний комментарий</button>
         </div>
       </div>
+
     </div>
+  </body>
     <script>
       "use strict";
+      const commentsLoading = document.querySelector('.data-loading');
+      const formCommentElement = document.querySelector('.add-form');
+      const commentLoadingElement = document.querySelector('.comment-loading');
       const deleteButtonElement = document.getElementById("delete-button");
       const buttonElement = document.getElementById("add-button");
       const listElement = document.getElementById("list");
@@ -39,9 +46,9 @@
 
 
       const currentDate = new Date().toLocaleDateString('default', {day: '2-digit', month: '2-digit', year: '2-digit'}) +
-" "+ new Date().toLocaleTimeString().slice(0,-3);
-const getCurrentDate = (date) => {
-  return date.getDate().toString().padStart(2, '0') + '.' +
+      " "+ new Date().toLocaleTimeString().slice(0,-3);
+    const getCurrentDate = (date) => {
+    return date.getDate().toString().padStart(2, '0') + '.' +
     (date.getMonth() + 1).toString().padStart(2, '0') + '.' +
     date.getFullYear().toString().slice(-2) + " " +
     date.toLocaleTimeString().slice(0, -3);
@@ -51,18 +58,14 @@ const getCurrentDate = (date) => {
 // получаем данные
 
 let comments = [];
-
 function fetchData() {
-  buttonElement.disabled = true;
-  buttonElement.textContent = 'Подождите, данные загружаются...'
-  const postData = fetch("https://wedev-api.sky.pro/api/v1/diana-semenova/comments", {
+  return fetch("https://wedev-api.sky.pro/api/v1/bredikhina-viktoriia/comments", {
     method: "GET",
-  });
-  postData.then((response) => {
-
-    response.json().then((responseJson) => {
-      buttonElement.disabled = false;
-  buttonElement.textContent = 'Написать'
+  })
+    .then((response) => {
+      return response.json();
+    })
+    .then((responseJson) => {
       const appComments = responseJson.comments.map((comment) => {
         return {
           name: comment.author.name,
@@ -73,13 +76,11 @@ function fetchData() {
           propertyColorLike: 'like-button no-active-like',
         }
       });
+      commentsLoading.style.display = 'none';
       comments = appComments;
-      renderComments();
+      return renderComments();
     });
-
-  });
-}
-
+};
 fetchData();
 
 // Активируем лайки 
@@ -184,10 +185,9 @@ commentInputElement.addEventListener("input", () => {
 
 // отправляем новые данные
 
-buttonElement.addEventListener("click", () => {
-  buttonElement.disabled = true;
-  buttonElement.textContent = 'Подождите, данные загружаются...'
-  const postData = fetch("https://wedev-api.sky.pro/api/v1/diana-semenova/comments", {
+
+  const postData = () => {
+    return fetch("https://wedev-api.sky.pro/api/v1/bredikhina-viktoriia/comments", {
     method: "POST",
     body: JSON.stringify({
       name: nameInputElement.value
@@ -207,17 +207,53 @@ buttonElement.addEventListener("click", () => {
       likes: 0,
       propertyColorLike: 'like-button no-active-like',
     })
-  });
+    })
+      .then((response) => {
+        if (response.status === 500) {
+          throw new Error("Сервер сломался");
+        } else if (response.status === 400) {
+          throw new Error("Плохой запрос");
+        } else {
+          return fetchData();
+        }
+      })
+      .then((data) => {
+        commentLoadingElement.classList.add ('comment-loading');      
+        formCommentElement.classList.remove ('comment-loading');
 
-  postData.then((response) => {
-    return response.json();})
-    .then((responseData) => {
-      buttonElement.disabled = false;
-  buttonElement.textContent = 'Написать'
-      fetchData();
-      renderComments();
+      nameInputElement.value = "";
+      commentInputElement.value = "";
+
+    })
+      .catch((error) => {
+
+          if (error.message === "Сервер сломался") {
+            alert("Сервер сломался, попробуйте позже");
+            postData();
+          } else
+          if (error.message === "Плохой запрос") {
+            alert("Имя и комментарий должны быть не короче 3 символов");
+          } else {
+            alert('Кажется, у вас сломался интернет, попробуйте позже');
+        console.log(error);  }
+        buttonElement.removeAttribute('disabled');
+        commentLoadingElement.classList.add ('comment-loading');      
+        formCommentElement.classList.remove ('comment-loading');
+
+        console.log(error);
+      });
+  };
+
+  buttonElement.addEventListener("click", () => {
+
+commentLoadingElement.classList.remove ('comment-loading');
+formCommentElement.classList.add ('comment-loading');
+buttonElement.setAttribute('disabled', true);
+
+//отпраляем новые данные 
+postData();
 });
-});
+
 
 // активируем нажатие "enter"
 
