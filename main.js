@@ -1,6 +1,6 @@
 import { fetchData } from './fetch.js';
-import { renderComments } from './render.js';
-import { postData } from './post.js';
+import { renderComments } from './comment.js';
+import { postData } from './fetch.js';
 
 
   const commentsLoading = document.querySelector('.data-loading');

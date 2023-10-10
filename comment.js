@@ -1,7 +1,43 @@
-import { getCurrentDate } from './utils.js';
-import { getLikes } from './likes.js';
-import { replyToComment } from './reply.js';
+import { commentInputElement } from './main.js';
 import { listElement, nameInputElement, commentInputElement, buttonElement } from './main.js';
+
+export function replyToComment(comments) {
+    let commentElements = document.querySelectorAll(".comment");
+    for (const commentElement of commentElements) {
+      commentElement.addEventListener("click", () => {
+        const indexComment = commentElement.dataset.index;
+        commentInputElement.value = `>${comments[indexComment].name}:\n${comments[indexComment].text.replaceAll("QUOTE_BEGIN", "<div class='comment-quote'><b>").replaceAll("QUOTE_END", "</b></div>")}\n\n`;
+      });
+    }
+  }
+
+
+
+
+export function getLikes(comments) {
+    const likesButton = document.querySelectorAll(".like-button");
+    for (const like of likesButton) {
+      like.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const likeIndex = like.dataset.index;
+        const commentsElementLikeIndex = comments[likeIndex];
+        if (commentsElementLikeIndex.likeComment) {
+          commentsElementLikeIndex.likesNumber -= 1;
+          commentsElementLikeIndex.likeComment = false;
+          commentsElementLikeIndex.propertyLikeImage =
+            "like-button -no-active-like";
+        } else {
+          commentsElementLikeIndex.likesNumber += 1;
+          commentsElementLikeIndex.likeComment = true;
+          commentsElementLikeIndex.propertyLikeImage =
+            "like-button -active-like";
+        }
+        renderComments(comments);
+      });
+    }
+  }
+
+
 
 export function renderComments(comments) {
   const commentsHtml = comments
