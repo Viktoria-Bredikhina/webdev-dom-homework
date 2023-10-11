@@ -1,4 +1,4 @@
-import { commentInputElement } from './main.js';
+
 import { listElement, nameInputElement, commentInputElement, buttonElement } from './main.js';
 
 export function replyToComment(comments) {
