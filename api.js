@@ -25,7 +25,7 @@ export const fetchPost = (token,commentInputElement,nameInputElement) => {
     method: "POST",
     body: JSON.stringify({
       name: nameInputElement.value,
-      date: getCurrentDate(new Date()),
+      date: format(new Date()),
       text: commentInputElement.value
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
