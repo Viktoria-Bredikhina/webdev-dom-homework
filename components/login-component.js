@@ -136,7 +136,7 @@ export const rederLoginComponent = ({
           registerUser({
             login: login,
             password: password,
-            name:_.capitalize(name),,
+            name:_.capitalize(name),
           })
             .then((user) => {
               console.log(user);
