@@ -1,5 +1,3 @@
-
-
 import { fetchPost, fetchDelete, toggleLike } from "./api.js";
 import { getAPI } from "./script.js";
 import { rederLoginComponent } from "./components/login-component.js"
@@ -50,8 +48,8 @@ const renderApp = (comments, listComments) => {
   appEl.innerHTML = appHTML;
 
   const formCommentElement = document.querySelector('.add-form');
-  const nameInputElement = document.querySelector('.add-form-name');
-  const commentInputElement = document.querySelector('.add-form-text');
+  const inputNameElement = document.querySelector('.add-form-name');
+  const inputTextElement = document.querySelector('.add-form-text');
   const buttonElement = document.querySelector('.add-form-button'); 
   const commentsElement = document.querySelector('.comments');
   const buttonElementDel = document.querySelector('.delete-form-button');
@@ -60,10 +58,9 @@ const renderApp = (comments, listComments) => {
     " " + new Date().toLocaleTimeString().slice(0, -3);
 
 
+  
 
-
-
-  //счетчик лайков 
+  //счетчик лайков у каждого комментария
   function getLikeButton() {
 
     const likesButton = document.querySelectorAll('.like-button');
@@ -75,9 +72,9 @@ const renderApp = (comments, listComments) => {
 
         const likeIndex = like.dataset.index;
         const commentsElementLikeIndex = comments[likeIndex];
+        like.classList.add('-loading-like');
 
         if (commentsElementLikeIndex.likeComment) {
-
           commentsElementLikeIndex.likeComment = false;
           commentsElementLikeIndex.propertyColorLike = 'like-button -no-active-like';
         } else {
@@ -100,7 +97,6 @@ const renderApp = (comments, listComments) => {
   getLikeButton();
 
 
-  //Ответы на комментарии
   function replyToComment() {
     let commentElements = document.querySelectorAll('.comment');
 
@@ -108,8 +104,10 @@ const renderApp = (comments, listComments) => {
       commentElement.addEventListener("click", () => {
 
         const indexComment = commentElement.dataset.index;
-        commentInputElement.value =
-          `${comments[indexComment].name}:\n${comments[indexComment].text}\n\n`;
+        let QUOTE_BEGIN = 'QUOTE_BEGIN';
+        let QUOTE_END = 'QUOTE_END';
+        inputTextElement.value =
+          `${QUOTE_BEGIN}${comments[indexComment].name}:\n${comments[indexComment].text}${QUOTE_END}\n\n`;
       }
       )
     }
@@ -126,6 +124,8 @@ const renderApp = (comments, listComments) => {
       deleteButton.addEventListener("click", (event) => {
         event.stopPropagation();
         const id = deleteButton.dataset.id;
+        console.log(id);
+       
         fetchDelete(token, id)
           .then((responseData) => {
             comments = responseData.appComments;
@@ -139,25 +139,25 @@ const renderApp = (comments, listComments) => {
   deleteComment();
 
 
-  //кнопка «Написать» не кликабельна, если имя или текст в форме незаполненные.
+  
   buttonElement.setAttribute('disabled', true);
 
 
-  commentInputElement.addEventListener("input", () => {
+  inputTextElement.addEventListener("input", () => {
 
     buttonElement.setAttribute('disabled', true);
 
-    if (commentInputElement.value.length > 0) {
+    if (inputTextElement.value.length > 0) {
 
       buttonElement.removeAttribute('disabled');
     }
   });
 
 
-  //отпраляем новые данные   
+ 
   const postData = () => {
 
-    return fetchPost(token, commentInputElement, nameInputElement)
+    return fetchPost(token, inputTextElement, inputNameElement)
       .then((response) => {
         return getAPI();
       })
@@ -165,18 +165,18 @@ const renderApp = (comments, listComments) => {
         commentLoadingElement.classList.add('comment-loading');
         formCommentElement.classList.remove('comment-loading');
 
-        nameInputElement.value = "";
-        commentInputElement.value = "";
+        inputNameElement.value = "";
+        inputTextElement.value = "";
 
       })
       .catch((error) => {
 
-  
+        
         if (error.message === "Сервер сломался") {
           alert("Сервер сломался, попробуйте позже");
           postData();
         } else
-
+        
           if (error.message === "Плохой запрос") {
             alert("Имя и комментарий должны быть не короче 3 символов");
           } else {
@@ -200,23 +200,27 @@ const renderApp = (comments, listComments) => {
     formCommentElement.classList.add('comment-loading');
     buttonElement.setAttribute('disabled', true);
 
+
     postData(fetchPost);
   });
 
 
-  //нажатие Enter активирует кнопку «Добавить».
+  ///Доп.задание2 нажатие клавиши Enter должно вызывать ту же логику, которая срабатывает при клике на кнопку «Добавить».
   document.addEventListener("keyup", function (event) {
     if (event.shiftKey && (event.keyCode === 13)) {
+      //переносит на другую строку
     } else if (event.keyCode === 13) {
       buttonElement.click();
     }
   });
 
-  //удаление последнего комментария
+  //удаление последнего комментари
   buttonElementDel.addEventListener("click", () => {
 
     comments.pop();
     renderApp(comments, getListComments)
+    // const lastElement = commentsElement.lastElementChild;
+    // lastElement.remove();
     });
   }
 

@@ -19,14 +19,13 @@ export const fetchGet = () => {
 
 
 
-//отпраляем новые данные   
-export const fetchPost = (token,commentInputElement,nameInputElement) => {
+export const fetchPost = (token,inputTextElement,inputNameElement) => {
   return fetch(host, {
     method: "POST",
     body: JSON.stringify({
-      name: nameInputElement.value,
+      name: inputNameElement.value,
       date: getCurrentDate(new Date()),
-      text: commentInputElement.value
+      text: inputTextElement.value
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
@@ -54,7 +53,7 @@ export const fetchPost = (token,commentInputElement,nameInputElement) => {
 
 }
 
-//удаляем
+
 export function fetchDelete(token,id) {
   return fetch(host + id, {
       method: "DELETE",
@@ -88,7 +87,7 @@ export const loginUser = ({login, password}) => {
 }
 
 
-export const registerUser = ({login, password,name}) => {
+export const registernUser = ({login, password,name}) => {
   return fetch("https://wedev-api.sky.pro/api/user", {
     method: "POST",
     body: JSON.stringify({
@@ -110,7 +109,7 @@ export const registerUser = ({login, password,name}) => {
 }
 
 
-//лайки
+
 export const toggleLike = ({id, token}) => {
   return fetch(`https://wedev-api.sky.pro/api/v2/viktoriia-bredikhina/comments/${id}/toggle-like`, {
     method: "POST",
